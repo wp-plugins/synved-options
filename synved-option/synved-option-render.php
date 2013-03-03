@@ -41,6 +41,8 @@ function synved_option_render_section($page, $section)
 
 	if ( !isset($wp_settings_fields) || !isset($wp_settings_fields[$page]) || !isset($wp_settings_fields[$page][$section]) )
 		return;
+		
+	$index = 0;
 
 	foreach ((array) $wp_settings_fields[$page][$section] as $field) 
 	{
@@ -49,7 +51,7 @@ function synved_option_render_section($page, $section)
 		$id = null;
 		$name = null;
 		$item = null;
-		$class_list = null;
+		$class_list = array();
 		
 		if ($callback == 'synved_option_call_array' && $args[0] == 'synved_option_setting_cb')
 		{
@@ -60,13 +62,35 @@ function synved_option_render_section($page, $section)
 			
 			if ($item != null)
 			{
+				$type = synved_option_item_type($item);
 				$style = synved_option_item_style($item);
+				
+				$class_list[] = 'synved-option-type-' . $type;
 				
 				if ($style != null)
 				{
 					foreach ($style as $style_name)
 					{
 						$class_list[] = 'synved-option-style-' . $style_name;
+	
+						// XXX exception
+						if ($style_name == 'addon-important')
+						{
+							if ($type == 'addon')
+							{
+								if (synved_option_item_addon_is_installed($item))
+								{
+									$class_list[] = 'synved-option-style-' . $style_name . '-installed';
+								}
+							}
+						}
+						else if ($style_name == 'group')
+						{
+							if ($index > 0)
+							{
+								$class_list[] = 'synved-option-style-' . $style_name . '-active';
+							}
+						}
 					}
 				}
 			}
@@ -96,11 +120,18 @@ function synved_option_render_section($page, $section)
 		
 		echo '</td>';
 		echo '</tr>';
+		
+		$index++;
 	}
 }
 
-function synved_option_render_item($id, $name, $item, $render = false)
+function synved_option_render_item($id, $name, $item = null, $render = false, $params = null, $context = null)
 {
+	if ($item == null)
+	{
+		$item = synved_option_item($id, $name);
+	}
+	
 	if ($item == null)
 	{
 		return null;
@@ -111,6 +142,7 @@ function synved_option_render_item($id, $name, $item, $render = false)
 	$style = synved_option_item_style($item);
 	$label = synved_option_item_label($item);
 	$tip = synved_option_item_tip($item);
+	$hint = synved_option_item_hint($item);
 	$default = synved_option_item_default($item);
 	$set = synved_option_item_set($item);
 	$set_is_linear = false;
@@ -130,19 +162,44 @@ function synved_option_render_item($id, $name, $item, $render = false)
 		}
 	}
 	
+	$out_name = synved_option_render_field_name($id, $name);
+	$out_id = synved_option_render_field_id($id, $name);
+	$out = null;
+	
+	if (isset($params['output_name']))
+	{
+		$out_name = $params['output_name'];
+	}
+	
+	if (isset($params['output_id']))
+	{
+		$out_id = $params['output_id'];
+	}
+	
+	if (isset($params['tip']))
+	{
+		$tip = $params['tip'];
+	}
+	
+	if (isset($params['default']))
+	{
+		$default = $params['default'];
+	}
+	
+	if (isset($params['value']))
+	{
+		$value = $params['value'];
+	}
+	
 	$new_value = $value;
 	$error_list = synved_option_item_validate_value($id, $name, $value, $new_value, $item);
 
-	if ($new_value != $value)
+	if ($new_value != $value && ($context == null || $context == 'settings'))
 	{
 		synved_option_set($id, $name, $new_value);
 		
 		$value = synved_option_get($id, $name);
 	}
-	
-	$out_name = synved_option_render_field_name($id, $name);
-	$out_id = synved_option_render_field_id($id, $name);
-	$out = null;
 	
 	if ($error_list != null)
 	{
@@ -156,6 +213,14 @@ function synved_option_render_item($id, $name, $item, $render = false)
 	{
 		$out .= '<select name="' . $out_name . '" id="' . $out_id . '">';
 		
+		// XXX exception...remove at some point
+		if (isset($params['set_before']))
+		{
+			$set_before = $params['set_before'];
+			
+			$set = array_merge($set_before, $set);
+		}
+		
 		foreach ($set as $set_it)
 		{
 			$set_it_keys = array_keys($set_it);
@@ -168,13 +233,20 @@ function synved_option_render_item($id, $name, $item, $render = false)
 	}
 	else
 	{
+		$placeholder = null;
+		
+		if ($hint != null)
+		{
+			$placeholder = ' placeholder="' . esc_attr($hint) . '"';
+		}
+		
 		switch ($type)
 		{
 			case 'boolean':
 			{
 				$checked = $value == true ? ' checked="checked"' : null;
 				
-				$out .= '<fieldset><legend class="screen-reader-text"><span>' . $label . '</span></legend><label for="' . $out_id . '"><input type="hidden" name="' . $out_name . '" value="0" /><input name="' . $out_name . '" id="' . $out_id . '" type="checkbox" value="1" class="code" ' . $checked . ' /> ' . $label . '</label>&nbsp;&nbsp;<span class="description" style="vertical-align:middle;">' . $tip . '</span></fieldset>';
+				$out .= '<fieldset><legend class="screen-reader-text"><span>' . $label . '</span></legend><label for="' . $out_id . '"><input type="hidden" name="' . $out_name . '" value="0" /><input name="' . $out_name . '" id="' . $out_id . '" type="checkbox" value="1" class="code" ' . $checked . $placeholder . ' /> ' . $label . '</label>&nbsp;&nbsp;<span class="description" style="vertical-align:middle;">' . $tip . '</span></fieldset>';
 			
 				break;
 			}
@@ -231,6 +303,11 @@ function synved_option_render_item($id, $name, $item, $render = false)
 					unset($atts['type']);
 				}
 				
+				if ($hint != null)
+				{
+					$atts['placeholder'] = $hint;
+				}
+				
 				if ($att_style != null)
 				{
 					$att_css = null;
@@ -252,7 +329,7 @@ function synved_option_render_item($id, $name, $item, $render = false)
 				
 				if ($content !== null)
 				{
-					$out .= '>' . $content . '</' . $tag . '>';
+					$out .= '>' . esc_html($content) . '</' . $tag . '>';
 				}
 				else
 				{
@@ -261,16 +338,16 @@ function synved_option_render_item($id, $name, $item, $render = false)
 				
 				if (in_array($type, array('image', 'video', 'media')))
 				{
-					$out .= '<input type="hidden" name="' . synved_option_render_field_name($id, $name . '_info_') . '" value="' . $type . '" />';
-					$out .= '&nbsp;&nbsp;<input type="button" class="synved-option-upload-button" value="' . esc_attr('Select File') . '" />';
+					$out .= '<input type="hidden" name="' . esc_attr(synved_option_render_field_name($id, $name . '_info_')) . '" value="' . esc_attr($type) . '" />';
+					$out .= '&nbsp;&nbsp;<input type="button" class="synved-option-upload-button" value="' . esc_attr(__('Select File', 'synved-option')) . '"' . $placeholder . ' />';
 				}
 			
 				break;
 			}
 			case 'color':
 			{
-				$out .= '<div style="position:relative;">';
-				$out .= '<input name="' . $out_name . '" id="' . $out_id . '" type="text" value="' . $value . '" class="code medium-text color-input" />';
+				$out .= '<div style="position:relative; float: left;">';
+				$out .= '<input name="' . $out_name . '" id="' . $out_id . '" type="text" value="' . esc_attr($value) . '" class="code medium-text color-input"' . $placeholder . ' />';
 				$out .= '<div class="synved-option-color-input-picker" style="background:white;border:solid 1px #ccc;display:none;position:absolute;top:100%;left:0;z-index:10000;"></div>';
 				$out .= '</div>';
 			
@@ -279,7 +356,7 @@ function synved_option_render_item($id, $name, $item, $render = false)
 			case 'integer':
 			case 'decimal':
 			{
-				$out .= '<input name="' . $out_name . '" id="' . $out_id . '" type="text" value="' . $value . '" class="code small-text" />';
+				$out .= '<input name="' . $out_name . '" id="' . $out_id . '" type="text" value="' . esc_attr($value) . '" class="code small-text"' . $placeholder . ' />';
 			
 				break;
 			}
@@ -329,7 +406,7 @@ function synved_option_render_item($id, $name, $item, $render = false)
 			}
 			case 'tag-list':
 			{
-				$out .= '<input name="' . $out_name . '" id="' . $out_id . '" type="text" value="' . $value . '" class="regular-text synved-option-tag-selector" />';
+				$out .= '<input name="' . $out_name . '" id="' . $out_id . '" type="text" value="' . esc_attr($value) . '" class="regular-text synved-option-tag-selector"' . $placeholder . ' />';
 			
 				break;
 			}
@@ -343,13 +420,44 @@ function synved_option_render_item($id, $name, $item, $render = false)
 				break;
 			}
 		}
+		
+		if ($hint != null)
+		{
+			$out .= ' <span class="snvdopt"><a class="button synved-option-reset-button" title="' . __('Set value to default hinted background value', 'synved-option') . '" style="display: inline-block; padding: 0; vertical-align: middle; cursor: pointer;"><span class="ui-icon ui-icon-arrowrefresh-1-w"> </span></a></span>';
+		}
+	}
+	
+	$item_render = synved_option_item_render($item);
+	
+	if ($item_render != null)
+	{
+		$error = null;
+		$new_out = null;
+		
+		try
+		{
+			$params = array('output_name' => $out_name, 'output_id' => $out_id, 'output' => $out, 'set' => $set, 'label' => $label);
+			$new_out = $item_render->Invoke(array($value, $params, $name, $id, $item));
+		}
+		catch (Exception $ex)
+		{
+			$new_out = null;
+			
+			$error = $ex->getMessage();
+		}
+		
+		if ($new_out !== null)
+		{
+			$out = $new_out;
+		}
 	}
 	
 	if ($out != null)
 	{
 		if ($tip != null && $type != 'boolean')
 		{
-			$out .= '&nbsp;&nbsp;<span class="description">' . $tip . '</span>';
+			$tip_class = ' description-' . $type;
+			$out .= '&nbsp;&nbsp;<span class="description' . $tip_class . '">' . $tip . '</span>';
 		}
 		
 		if ($render)

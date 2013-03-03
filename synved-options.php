@@ -4,15 +4,10 @@ Plugin Name: WordPress Options
 Plugin URI: http://synved.com/wordpress-options/
 Description: Easily add options to your themes or plugins with as little or as much coding as you want. Just create an array of your options, the rest is automated. If you need extra flexibility you can then use the powerful API provided to achieve any level of customization.
 Author: Synved
-Version: 1.3.9
+Version: 1.4.1
 Author URI: http://synved.com/
 
 LEGAL STATEMENTS
-
-COPYRIGHT
-All documents, text, questions, references, images, audio, programs, source code or other materials whatsoever contained in, or supplied are protected by copyright of the respective copyright holders.
-
-Except as explicitly allowed under each specific copyright or license, these materials may not be reproduced in whole or in part, in any form or by any means, including photocopy, electronic storage and retrieval, or translation into any other language without the express written consent of the copyright holder.
 
 NO WARRANTY
 All products, support, services, information and software are provided "as is" without warranty of any kind, express or implied, including, but not limited to, the implied warranties of fitness for a particular purpose, and non-infringement.

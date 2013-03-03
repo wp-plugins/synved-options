@@ -1,10 +1,10 @@
 === WordPress Options ===
 Contributors: Synved
 Donate link: http://synved.com/wordpress-options/
-Tags: wordpress options, settings API, automatic UI, automatic settings, upload files, media files, create settings pages, custom plugin options, easy theme options, plugin
+Tags: free, wordpress options, settings API, automatic UI, automatic settings, upload files, media files, create settings pages, custom plugin options, easy theme options, plugin, manage, automatic, api, time, administration, filter
 Requires at least: 3.1
-Tested up to: 3.4.1
-Stable tag: 1.3.9
+Tested up to: 3.5.1
+Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,7 +31,7 @@ The plugin provides many different option types that cover most of any designer/
 * Supports custom validation for all option types
 * Options pages can be placed anywhere in the admin menu
 * Callback system to dynamically change item data
-* Optional addon that allows authors to sell their own addons
+* Optional addon that allows authors to [sell their own addons](http://synved.com/product/wordpress-options-addon-installer/)
 
 = Related Links: =
 
@@ -80,7 +80,11 @@ synved_option_register('my_test', $test_options);`
 
 == Changelog ==
 
+= 1.4.1 =
+* Adjusted callback system
+* Rendering now supports context
+* Fixes and cleanups
+
 = 1.3.9 =
 * First public release.
-
 
