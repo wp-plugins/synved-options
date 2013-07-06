@@ -80,6 +80,9 @@ synved_option_register('my_test', $test_options);`
 
 == Changelog ==
 
+= 1.4.2 =
+* Add link-target item property to link plugins to settings
+
 = 1.4.1 =
 * Adjusted callback system
 * Rendering now supports context
