@@ -3,7 +3,7 @@ Contributors: Synved
 Donate link: http://synved.com/wordpress-options/
 Tags: free, wordpress options, settings API, automatic UI, automatic settings, upload files, media files, create settings pages, custom plugin options, easy theme options, plugin, manage, automatic, api, time, administration, filter
 Requires at least: 3.1
-Tested up to: 3.5.2
+Tested up to: 3.6
 Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
