@@ -80,6 +80,14 @@ synved_option_register('my_test', $test_options);`
 
 == Changelog ==
 
+= 1.4.4 =
+* Fixed some warnings and notices
+
+= 1.4.3 =
+* Added usage of module property
+* Move addons automatically when upgrading to ensure they are kept
+* Other misc fixes
+
 = 1.4.2 =
 * Add link-target item property to link plugins to settings
 
