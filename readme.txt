@@ -3,7 +3,7 @@ Contributors: Synved
 Donate link: http://synved.com/wordpress-options/
 Tags: free, wordpress options, settings API, automatic UI, automatic settings, upload files, media files, create settings pages, custom plugin options, easy theme options, plugin, manage, automatic, api, time, administration, filter
 Requires at least: 3.1
-Tested up to: 3.6
+Tested up to: 3.9.1
 Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -79,6 +79,9 @@ synved_option_register('my_test', $test_options);`
 4. What the WordPress Options framework will create automatically for your custom addon code above
 
 == Changelog ==
+
+= 1.4.5 =
+* Fix to reduce potential conflicts with other plugins using jQuery UI
 
 = 1.4.4 =
 * Fixed some warnings and notices
